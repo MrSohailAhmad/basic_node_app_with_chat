@@ -21,16 +21,16 @@ enum auth_log_type {
 }
 
 model users {
-  id             Int       @id @default(autoincrement())
+  id             Int              @id @default(autoincrement())
   name           String
-  email          String    @unique
+  email          String           @unique
   role_id        Int
   status         String
   gender         String?
   number         String?
-  password       String    @db.Text
-  remember_token String?   @db.Text
-  deleted        Boolean   @default(false)
+  password       String           @db.Text
+  remember_token String?          @db.Text
+  deleted        Boolean          @default(false)
   created_by     Int?
   lat_long       String?
   postal_code    String?
@@ -39,10 +39,12 @@ model users {
   country        String?
   image          String?
   state          String?
-  birth_date     DateTime? @db.Date
-  last_login     DateTime  @default(now())
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @default(now())
+  birth_date     DateTime?        @db.Date
+  last_login     DateTime         @default(now())
+  messages       Message[]
+  chatRooms      ChatRoomMember[]
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @default(now())
 
   role          roles           @relation(fields: [role_id], references: [id])
   auth_log      auth_log[]
@@ -61,11 +63,12 @@ model roles {
 }
 
 model notifications {
-  id         Int      @id @default(autoincrement())
-  user_id    Int
-  type       String
-  message    String
-  is_read    Boolean  @default(false)
+  id      Int     @id @default(autoincrement())
+  user_id Int
+  type    String
+  message String
+  is_read Boolean @default(false)
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -84,4 +87,37 @@ model books {
   deleted    Boolean  @default(false)
 
   user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model ChatRoom {
+  id        Int              @id @default(autoincrement())
+  name      String? // optional for 1:1
+  type      ChatType
+  members   ChatRoomMember[]
+  messages  Message[]
+  createdAt DateTime         @default(now())
+}
+
+model ChatRoomMember {
+  id         Int      @id @default(autoincrement())
+  user       users    @relation(fields: [userId], references: [id])
+  userId     Int
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+  chatRoomId Int
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String
+  sender     users    @relation(fields: [senderId], references: [id])
+  senderId   Int
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+  chatRoomId Int
+  createdAt  DateTime @default(now())
+}
+
+enum ChatType {
+  ONE_TO_ONE
+  GROUP
+  COMMUNITY
 }

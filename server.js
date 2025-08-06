@@ -17,12 +17,13 @@ import {
 } from './middlewares';
 import { AuthRoutes, RoleRoutes, UserRoutes } from './routes';
 import { bookRoutes } from './routes/books.routes';
+import { configChat } from './chat';
 // import runSeeders from './seeders';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
+export const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(rateLimiter);
@@ -31,6 +32,8 @@ app.use(morgan('dev'));
 app.use(responseTime());
 
 app.use(cors({ origin: '*' }));
+// config chat
+configChat();
 
 app.use('/public', express.static(path.join(path.resolve(), 'temp_uploads')));
 app.use(express.static(path.join(path.resolve(), 'public')));
