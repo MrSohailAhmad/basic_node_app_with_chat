@@ -57,3 +57,7 @@ dist
 
 uploads/*
 temp_uploads/*
+
+
+.env.development
+.env.production
