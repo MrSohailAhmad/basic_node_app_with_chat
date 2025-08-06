@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model auth_log {
+  id         Int           @id @default(autoincrement())
+  user_id    Int
+  type       auth_log_type @default(login)
+  created_at DateTime      @default(now())
+  users      users         @relation(fields: [user_id], references: [id])
+}
+
+enum auth_log_type {
+  login
+  logout
+}
+
+model users {
+  id             Int       @id @default(autoincrement())
+  name           String
+  email          String    @unique
+  role_id        Int
+  status         String
+  gender         String?
+  number         String?
+  password       String    @db.Text
+  remember_token String?   @db.Text
+  deleted        Boolean   @default(false)
+  created_by     Int?
+  lat_long       String?
+  postal_code    String?
+  address        String?
+  city           String?
+  country        String?
+  image          String?
+  state          String?
+  birth_date     DateTime? @db.Date
+  last_login     DateTime  @default(now())
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @default(now())
+
+  role          roles           @relation(fields: [role_id], references: [id])
+  auth_log      auth_log[]
+  notifications notifications[]
+  books         books[]
+}
+
+model roles {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?  @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+  deleted     Boolean  @default(false)
+  users       users[]
+}
+
+model notifications {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  type       String
+  message    String
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user users @relation(fields: [user_id], references: [id])
+}
+
+model books {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  type       String
+  title      String
+  author     String
+  published  Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  deleted    Boolean  @default(false)
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
